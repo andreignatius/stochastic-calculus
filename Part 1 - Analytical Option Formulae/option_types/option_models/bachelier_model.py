@@ -1,3 +1,8 @@
+"""
+Authors     : Dylan Loo & Sarah Yin
+Tests       : option_types.test_option_models.test_bachelier_model
+Description : uses normal distribution of returns, allows for pricing of negative values
+"""
 from .abstract_option_model import AbstractOptionModel
 
 
