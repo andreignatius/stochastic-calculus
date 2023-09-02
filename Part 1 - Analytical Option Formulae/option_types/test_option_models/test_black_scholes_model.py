@@ -1,3 +1,4 @@
+import pytest
 from option_types.option_models.black_scholes_model import *
 
 # Example:
@@ -16,12 +17,11 @@ def test_vanilla_call_price():
 	tolerance = 0.00001
 	call_price = vanillaBSM.calculate_call_price()
 	assert call_price > 0
-	assert EST_OPTION_VALUE - tolerance < call_price < EST_OPTION_VALUE + tolerance
+	assert call_price == pytest.approx(EST_OPTION_VALUE, tolerance)
 
 def test_vanilla_put_price():
 	EST_OPTION_VALUE = 5.57353
 	tolerance = 0.00001
 	put_price = vanillaBSM.calculate_put_price()
 	assert put_price > 0
-	assert EST_OPTION_VALUE - tolerance < put_price < EST_OPTION_VALUE + tolerance
-
+	assert put_price == pytest.approx(EST_OPTION_VALUE, tolerance)
