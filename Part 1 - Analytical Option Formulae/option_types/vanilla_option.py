@@ -1,8 +1,7 @@
 from .abstract_option_type import AbstractOption
-
-from .option_models.black_scholes_model import *
 from .option_models.bachelier_model import *
 from .option_models.black_76_model import *
+from .option_models.black_scholes_model import *
 from .option_models.displaced_diffusion_model import *
 
 

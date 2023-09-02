@@ -1,4 +1,5 @@
 import pytest
+
 from option_types.option_models.black_scholes_model import *
 
 # Example:

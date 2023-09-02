@@ -3,9 +3,11 @@ Authors     : Andre Lim & Joseph Adhika
 Tests       : option_types.test_option_models.test_black_76_model
 Description : uses lognormal distribution of returns, strictly prices non-zero values
 """
-from .abstract_option_model import AbstractOptionModel
 import numpy as np
 from scipy.stats import norm
+
+from .abstract_option_model import AbstractOptionModel
+
 
 class AbstractBlackScholesModel(AbstractOptionModel):
     def __init__(self, S: float, K: float, r: float, sigma: float, T: float):
