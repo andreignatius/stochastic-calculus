@@ -1,3 +1,8 @@
+"""
+Authors     : Andre Lim & Joseph Adhika
+Tests       : option_types.test_option_models.test_black_76_model
+Description : uses lognormal distribution of returns, strictly prices non-zero values
+"""
 from .abstract_option_model import AbstractOptionModel
 
 
