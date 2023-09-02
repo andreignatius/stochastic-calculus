@@ -12,6 +12,7 @@ class AbstractBlackScholesModel(AbstractOptionModel):
 
 class VanillaBlackScholesModel(AbstractBlackScholesModel):
     def calculate_call_price(self) -> float:
+        print(1)
         pass  # TODO: add formulae
 
     def calculate_put_price(self) -> float:
