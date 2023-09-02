@@ -6,7 +6,7 @@ if __name__ == "__main__":
     K = 1
     r = 1
     sigma = 1
-    T = 1
+    T = 2
 
     vanilla_option = VanillaOption()
     vanilla_bm_model = vanilla_option.black_scholes_model(S, K, r, sigma, T)
