@@ -24,6 +24,9 @@ class AbstractBlackScholesModel(AbstractOptionModel):
     def _calculate_d2(self) -> float:
         return self.d1 - self.sigma * np.sqrt(self.T)
 
+    def _calculate_d2_digital_cash_or_nothing(self) -> float:
+        return (np.log(self.S / self.K) + (self.r - 0.5 * self.sigma**2) * self.T) / (self.sigma * np.sqrt(self.T))
+
 
 class VanillaBlackScholesModel(AbstractBlackScholesModel):
     def calculate_call_price(self) -> float:
@@ -35,15 +38,15 @@ class VanillaBlackScholesModel(AbstractBlackScholesModel):
 
 class DigitalCashOrNothingBlackScholesModel(AbstractBlackScholesModel):
     def calculate_call_price(self) -> float:
-        pass  # TODO: add formulae
+        return np.exp(-self.r * self.T) * norm.cdf(self._calculate_d2_digital_cash_or_nothing())
 
     def calculate_put_price(self) -> float:
-        pass  # TODO: add formulae
+        return np.exp(-self.r * self.T) * (1 - norm.cdf(self._calculate_d2_digital_cash_or_nothing()))
 
 
 class DigitalAssetOrNothingBlackScholesModel(AbstractBlackScholesModel):
     def calculate_call_price(self) -> float:
-        pass  # TODO: add formulae
+        return self.S * norm.cdf(self.d1)
 
     def calculate_put_price(self) -> float:
-        pass  # TODO: add formulae
+        return self.S * (1 - norm.cdf(self.d1))
