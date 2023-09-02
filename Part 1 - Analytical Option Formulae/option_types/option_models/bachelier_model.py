@@ -29,7 +29,6 @@ class AbstractBachelierModel(AbstractOptionModel):
         self.N_minus_d2 = norm.cdf(-self.d2)
         return S, K, r, T, σ, self.N_d1, self.N_d2, self.N_minus_d1, self.N_minus_d2
 
-
     
 class VanillaBachelierModel(AbstractBachelierModel):
     def calculate_call_price(self) -> float:
@@ -57,6 +56,7 @@ class DigitalCashOrNothingBachelierModel(AbstractBachelierModel):
         cash_amount = self.parameters['cash_amount']
         put_price = math.exp(-r * T) * (cash_amount * self.N_minus_d1)
         return put_price
+
 
 class DigitalAssetOrNothingBachelierModel(AbstractBachelierModel):
     def calculate_call_price(self) -> float:
