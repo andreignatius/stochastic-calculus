@@ -6,6 +6,10 @@ Description : uses normal distribution of returns, allows for pricing of negativ
 from .abstract_option_model import AbstractOptionModel
 
 
+class AbstractOptionModel:
+    def __init__(self, parameters):
+        self.parameters = parameters
+
 class AbstractBachelierModel(AbstractOptionModel):
     def __init__(self, parameters):
         super().__init__(parameters)
@@ -29,13 +33,13 @@ class AbstractBachelierModel(AbstractOptionModel):
     
 class VanillaBachelierModel(AbstractBachelierModel):
     def calculate_call_price(self) -> float:
-        S, K, _, _, _, self.N_d1, self.N_d2, _, _, = self.calculate_d1_d2()
+        S, K, r, T, _, self.N_d1, self.N_d2, _, _, = self.calculate_d1_d2()
         call_price = math.exp(-r * T) * \
             (S * self.N_d1 - K * self.N_d2)
         return call_price
 
     def calculate_put_price(self) -> float:
-        S, K, _, _, _, _, _, self.N_minus_d1, _ = self.calculate_d1_d2()
+        S, K, r, T, _, _, _, self.N_minus_d1, _ = self.calculate_d1_d2()
         put_price = math.exp(-r * T) * \
             (K * self.N_minus_d2 - S * self.N_minus_d1)
         return put_price
