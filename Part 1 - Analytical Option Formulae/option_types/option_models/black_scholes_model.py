@@ -60,15 +60,15 @@ class VanillaBlackScholesModel(AbstractBlackScholesModel):
 
 class DigitalCashOrNothingBlackScholesModel(AbstractBlackScholesModel):
     def calculate_call_price(self) -> float:
-        pass  # TODO: add formulae
+        return np.exp(-self.r * self.T) * norm.cdf(self.d2)
 
     def calculate_put_price(self) -> float:
-        pass  # TODO: add formulae
+        return np.exp(-self.r * self.T) * norm.cdf(-self.d2)
 
 
 class DigitalAssetOrNothingBlackScholesModel(AbstractBlackScholesModel):
     def calculate_call_price(self) -> float:
-        pass  # TODO: add formulae
+        return self.S * norm.cdf(self.d1)
 
     def calculate_put_price(self) -> float:
-        pass  # TODO: add formulae
+        return self.S * norm.cdf(-self.d1)
