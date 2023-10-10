@@ -3,20 +3,21 @@ import pytest
 from option_types.option_models.displaced_diffusion_model import *
 
 # Example:
-S = 100  # Stock price today
-K = 100  # Strike price
-T = 1  # Time until expiry (in years)
-r = 0.05  # Risk-free rate
-sigma = 0.2  # Volatility
+F = 2006  # Stock price today
+K = 2100  # Strike price
+T = 0.08493   # Time until expiry (in years)
+r = 0.051342   # Risk-free rate
+sigma = 0.35  # Volatility
 beta = 1 # displaced diffusion parameter. if DDM = 1 then should equal BSM
 
 
-vanillaDDM = VanillaDisplacedDiffusionModel(S, K, r, sigma, T, beta)
+vanillaDDM = VanillaDisplacedDiffusionModel(F, K, r, sigma, T, beta)
 
 
-# This will give you the price of European call and put options using the Black-Scholes formula.
+# Values taken from here, the results is slightly different because discounting is slightly different
+# https://www.lme.com/en/trading/contract-types/options/black-scholes-76-formula
 def test_vanilla_call_price():
-    EST_OPTION_VALUE = 10.45058
+    EST_OPTION_VALUE = 44.57817
     tolerance = 0.00001
     call_price = vanillaDDM.calculate_call_price()
     assert call_price > 0
@@ -24,42 +25,42 @@ def test_vanilla_call_price():
 
 
 def test_vanilla_put_price():
-	EST_OPTION_VALUE = 5.57353
+	EST_OPTION_VALUE = 138.1692
 	tolerance = 0.00001
 	put_price = vanillaDDM.calculate_put_price()
 	assert put_price > 0
 	assert put_price == pytest.approx(EST_OPTION_VALUE, tolerance)
 
-digitalCashOrNothingDDM = DigitalCashOrNothingDisplacedDiffusionModel(S, K, r, sigma, T, beta)
+digitalCashOrNothingDDM = DigitalCashOrNothingDisplacedDiffusionModel(F, K, r, sigma, T, beta)
 
 # This will give you the price of digital cash call and put options using the Black-Scholes formula.
 def test_digital_cash_or_nothing_call_price():
-	EST_OPTION_VALUE = 0.5323248154537634
+	EST_OPTION_VALUE = 0.307206
 	tolerance = 0.00001
 	call_price = digitalCashOrNothingDDM.calculate_call_price()
 	assert call_price > 0
 	assert call_price == pytest.approx(EST_OPTION_VALUE, tolerance)
 
 def test_digital_cash_or_nothing_put_price():
-	EST_OPTION_VALUE = 0.41890460904695065
+	EST_OPTION_VALUE = 0.688443
 	tolerance = 0.00001
 	put_price = digitalCashOrNothingDDM.calculate_put_price()
 	assert put_price > 0
 	assert put_price == pytest.approx(EST_OPTION_VALUE, tolerance)
 
 
-digitalAssetOrNothingDDM = DigitalAssetOrNothingDisplacedDiffusionModel(S, K, r, sigma, T, beta)
+digitalAssetOrNothingDDM = DigitalAssetOrNothingDisplacedDiffusionModel(F, K, r, sigma, T, beta)
 
 # This will give you the price of digital asset call and put options using the Black-Scholes formula.
 def test_digital_asset_or_nothing_call_price():
-	EST_OPTION_VALUE = 63.68306511756191
+	EST_OPTION_VALUE = 692.725
 	tolerance = 0.00001
 	call_price = digitalAssetOrNothingDDM.calculate_call_price()
 	assert call_price > 0
 	assert call_price == pytest.approx(EST_OPTION_VALUE, tolerance)
 
 def test_digital_asset_or_nothing_put_price():
-	EST_OPTION_VALUE = 36.31693488243809
+	EST_OPTION_VALUE = 1313.275
 	tolerance = 0.00001
 	put_price = digitalAssetOrNothingDDM.calculate_put_price()
 	assert put_price > 0
