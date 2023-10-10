@@ -8,7 +8,7 @@ K = 2100  # Strike price
 T = 0.08493   # Time until expiry (in years)
 r = 0.051342   # Risk-free rate
 sigma = 0.35  # Volatility
-beta = 1 # displaced diffusion parameter. if DDM = 1 then should equal BSM
+beta = 1 # displaced diffusion parameter. if DDM = 1 then should equal Black76
 
 
 vanillaDDM = VanillaDisplacedDiffusionModel(F, K, r, sigma, T, beta)
@@ -16,6 +16,8 @@ vanillaDDM = VanillaDisplacedDiffusionModel(F, K, r, sigma, T, beta)
 
 # Values taken from here, the results is slightly different because discounting is slightly different
 # https://www.lme.com/en/trading/contract-types/options/black-scholes-76-formula
+
+# This will give you the price of digital cash call and put options using the Displaced Diffusion  formula.
 def test_vanilla_call_price():
     EST_OPTION_VALUE = 44.57817
     tolerance = 0.00001
@@ -33,7 +35,7 @@ def test_vanilla_put_price():
 
 digitalCashOrNothingDDM = DigitalCashOrNothingDisplacedDiffusionModel(F, K, r, sigma, T, beta)
 
-# This will give you the price of digital cash call and put options using the Black-Scholes formula.
+# This will give you the price of digital cash call and put options using the Displaced Diffusion  formula.
 def test_digital_cash_or_nothing_call_price():
 	EST_OPTION_VALUE = 0.307206
 	tolerance = 0.00001
@@ -51,7 +53,7 @@ def test_digital_cash_or_nothing_put_price():
 
 digitalAssetOrNothingDDM = DigitalAssetOrNothingDisplacedDiffusionModel(F, K, r, sigma, T, beta)
 
-# This will give you the price of digital asset call and put options using the Black-Scholes formula.
+# This will give you the price of digital asset call and put options using the Displaced Diffusion  formula.
 def test_digital_asset_or_nothing_call_price():
 	EST_OPTION_VALUE = 692.725
 	tolerance = 0.00001
