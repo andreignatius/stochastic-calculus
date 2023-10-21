@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import numpy as np
 from scipy.stats import norm
 from scipy.integrate import quad
+import math
 
 from analytical_option_formulae.option_types.option_models.black_scholes_model import VanillaBlackScholesModel
 
@@ -59,6 +60,13 @@ I_put = quad(lambda x: putintegrand_BSM(x), 0.0, F)
 I_call = quad(lambda x: callintegrand_BSM(x), F, 5000)
 E_var = 2*np.exp(r*T)*(I_put[0] + I_call[0])
 print('The expected integrated variance is 111: %.9f' % E_var)
+
+sigma = math.sqrt(E_var)
+print('What sigma should we use: %.9f' % sigma)
+
+vanillaBSM = VanillaBlackScholesModel(S, K, r, sigma, T)
+print("BSM call price: ", vanillaBSM.calculate_call_price())
+print("BSM put price: ", vanillaBSM.calculate_put_price())
 
 # Prof Tee method for comparison
 
