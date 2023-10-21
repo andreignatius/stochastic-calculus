@@ -17,11 +17,6 @@ class AbstractBachelierModel(AbstractOptionModel):
         self.sigma = sigma*self.S
 
         self.d1 = self._calculate_d1()
-        print("check S:", self.S)
-        print("check K:", self.K)
-        print("check T:", self.T)
-        print("check sigma: ", self.sigma)
-        print("check d:", self.d1)
 
     def _calculate_d1(self):
         return (self.S - self.K) / (self.sigma * math.sqrt(self.T))
