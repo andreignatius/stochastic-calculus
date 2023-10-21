@@ -35,18 +35,20 @@ def putintegrand_BSM(K):
 
 I_put = quad(lambda x: putintegrand_BSM(x), 0.0, F)
 I_call = quad(lambda x: callintegrand_BSM(x), F, 5000)
-E_var = 2 * (I_put[0] + I_call[0])
+E_var = 2*np.exp(r*T) * (I_put[0] + I_call[0])
 
 
 print('The expected integrated variance is 000: %.9f' % E_var)
 
+def callintegrand_BSM(K):
+    vanillaBSM = VanillaBlackScholesModel(S, K, r, sigma, T)
+    price = vanillaBSM.calculate_call_price()
+    return price / K**2
 
-# I_put = quad(lambda x: putintegrand(K), 0.0, F)
-# I_call = quad(lambda x: callintegrand(x, S, r, T, sigma), F, 5000)
-# E_var = 2*np.exp(r*T)*(I_put[0] + I_call[0])
-# print('The expected integrated variance is: %.9f' % E_var)
-
-
+def putintegrand_BSM(K):
+    vanillaBSM = VanillaBlackScholesModel(S, K, r, sigma, T)
+    price = vanillaBSM.calculate_put_price()
+    return price / K**2
 
 # S = 100.0
 # r = 0.05
@@ -58,27 +60,7 @@ I_call = quad(lambda x: callintegrand_BSM(x), F, 5000)
 E_var = 2*np.exp(r*T)*(I_put[0] + I_call[0])
 print('The expected integrated variance is 111: %.9f' % E_var)
 
-
-
-# class VanillaBlackScholesModel(AbstractBlackScholesModel):
-#     def calculate_call_price(self) -> float:
-#         return self.S * norm.cdf(self.d1) - self.K * np.exp(
-#             -self.r * self.T
-#         ) * norm.cdf(self.d2)
-
-#     def calculate_put_price(self) -> float:
-#         return self.K * np.exp(-self.r * self.T) * norm.cdf(
-#             -self.d2
-#         ) - self.S * norm.cdf(-self.d1)
-
-
-# def _calculate_d1(self) -> float:
-#         return (np.log(self.S / self.K) + (self.r + 0.5 * self.sigma**2) * self.T) / (
-#             self.sigma * np.sqrt(self.T)
-#         )
-
-#     def _calculate_d2(self) -> float:
-#         return self.d1 - self.sigma * np.sqrt(self.T)
+# Prof Tee method for comparison
 
 def BlackScholesCall(S, K, r, sigma, T):
     d1 = (np.log(S/K)+(r+sigma**2/2)*T) / (sigma*np.sqrt(T))
@@ -111,6 +93,6 @@ F = S * np.exp(r*T)
 I_put = quad(lambda x: putintegrand(x, S, r, T, sigma), 0.0, F)
 I_call = quad(lambda x: callintegrand(x, S, r, T, sigma), F, 5000)
 E_var = 2*np.exp(r*T)*(I_put[0] + I_call[0])
-print("BSM call price: ", BlackScholesCall(S, K, r, sigma, T))
-print("BSM put price: ", BlackScholesPut(S, K, r, sigma, T))
-print('The expected integrated variance is 222: %.9f' % E_var)
+print("BSM call price (Prof Tee): ", BlackScholesCall(S, K, r, sigma, T))
+print("BSM put price (Prof Tee): ", BlackScholesPut(S, K, r, sigma, T))
+print('The expected integrated variance (Prof Tee) is: %.9f' % E_var)
