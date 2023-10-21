@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import numpy as np
 from scipy.stats import norm
 from scipy.integrate import quad
+import math
 
 from analytical_option_formulae.option_types.option_models.bachelier_model import VanillaBachelierModel
 
@@ -42,3 +43,10 @@ E_var = 2 * (I_put[0] + I_call[0])
 
 
 print('The expected integrated variance is 000: %.9f' % E_var)
+
+sigma = math.sqrt(E_var)
+print('What sigma should we use: %.9f' % sigma)
+
+vanillaBachelier = VanillaBachelierModel(S, K, T, r, sigma*S)
+print("Bachelier call price: ", vanillaBachelier.calculate_call_price())
+print("Bachelier put price: ", vanillaBachelier.calculate_put_price())

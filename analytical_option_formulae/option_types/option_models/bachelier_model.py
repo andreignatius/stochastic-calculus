@@ -17,11 +17,6 @@ class AbstractBachelierModel(AbstractOptionModel):
         self.sigma = sigma
 
         self.d1 = self._calculate_d1()
-        print("check S:", self.S)
-        print("check K:", self.K)
-        print("check T:", self.T)
-        print("check sigma: ", self.sigma)
-        print("check d:", self.d1)
 
     def _calculate_d1(self):
         return (self.S - self.K) / (self.sigma * math.sqrt(self.T))
@@ -33,18 +28,6 @@ class VanillaBachelierModel(AbstractBachelierModel):
             (((self.S - self.K) * norm.cdf(self.d1)) + \
             (math.sqrt(self.T) * self.sigma * norm.pdf(self.d1)))
         return call_price
-
-    # def calculate_put_price(self) -> float:
-    #     # Define put price via put-call parity
-    #     call_price = self.calculate_call_price()
-    #     put_price = call_price - self.S + math.exp(-self.r * self.T) * self.K
-    #     return put_price
-
-    # def calculate_call_price(self) -> float:
-    #     call_price = math.exp(-self.r * self.T) * \
-    #         (((self.S - self.K) * norm.cdf(self.d1)) + \
-    #         (math.sqrt(self.T) * self.sigma * norm.pdf(self.d1)))
-    #     return call_price
 
     def calculate_put_price(self) -> float:
         put_price = math.exp(-self.r * self.T) * \
