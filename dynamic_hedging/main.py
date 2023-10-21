@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
+import time
 
 def simulate_paths(S0, sigma, r, T, N, n_paths):
     dt = T/N
@@ -25,7 +26,8 @@ def compute_psi(St, K, r, sigma, t, T):
     d2 = d1 - sigma*np.sqrt(T-t)
     return -K * np.exp(-r*T) * norm.cdf(d2)
 
-
+# Record the start time
+start_time = time.time()
 
 S_0 = 100
 K = 100
@@ -42,6 +44,8 @@ for N in hedging_intervals:
     dt = T/N  # time step
     
     for path in range(num_paths):
+        if path % 1000 == 0 and path > 0:
+            print("paths explored: ", path)
         # Initialization
         S = S_0
         B = 1.0  # Starting value for risk-free bond
@@ -74,6 +78,13 @@ for N in hedging_intervals:
     plt.hist(errors[N], bins=50, alpha=0.5, label=f'N={N}')
     plt.legend()
 
+print("READY!")
+# Record the end time
+end_time = time.time()
+
+# Calculate and print the elapsed time
+elapsed_time = end_time - start_time
+print(f"Time elapsed: {elapsed_time} seconds")
 plt.show()
 
 
