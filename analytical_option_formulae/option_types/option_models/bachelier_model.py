@@ -14,7 +14,7 @@ class AbstractBachelierModel(AbstractOptionModel):
         self.K = K
         self.T = T
         self.r = r
-        self.sigma = sigma
+        self.sigma = sigma*self.S
 
         self.d1 = self._calculate_d1()
         print("check S:", self.S)
@@ -28,23 +28,10 @@ class AbstractBachelierModel(AbstractOptionModel):
 
 class VanillaBachelierModel(AbstractBachelierModel):
     def calculate_call_price(self) -> float:
-        # Define call price as per notes
         call_price = math.exp(-self.r * self.T) * \
             (((self.S - self.K) * norm.cdf(self.d1)) + \
             (math.sqrt(self.T) * self.sigma * norm.pdf(self.d1)))
         return call_price
-
-    # def calculate_put_price(self) -> float:
-    #     # Define put price via put-call parity
-    #     call_price = self.calculate_call_price()
-    #     put_price = call_price - self.S + math.exp(-self.r * self.T) * self.K
-    #     return put_price
-
-    # def calculate_call_price(self) -> float:
-    #     call_price = math.exp(-self.r * self.T) * \
-    #         (((self.S - self.K) * norm.cdf(self.d1)) + \
-    #         (math.sqrt(self.T) * self.sigma * norm.pdf(self.d1)))
-    #     return call_price
 
     def calculate_put_price(self) -> float:
         put_price = math.exp(-self.r * self.T) * \
@@ -52,27 +39,25 @@ class VanillaBachelierModel(AbstractBachelierModel):
             (math.sqrt(self.T) * self.sigma * norm.pdf(-self.d1)))
         return put_price
 
-
 class DigitalCashOrNothingBachelierModel(AbstractBachelierModel):
     def calculate_call_price(self) -> float:
-        call_price = math.exp(-self.r * self.T) * norm.cdf(d1)
+        call_price = math.exp(-self.r * self.T) * norm.cdf(self.d1)
         return call_price
 
     def calculate_put_price(self) -> float:
-        # Define put price via put-call parity
-        call_price = self.calculate_call_price()
-        put_price = call_price - self.S + math.exp(-self.r * self.T) * self.K
+        put_price = math.exp(-self.r * self.T) * norm.cdf(-self.d1)
         return put_price
 
 
 class DigitalAssetOrNothingBachelierModel(AbstractBachelierModel):
     def calculate_call_price(self) -> float:
         call_price = math.exp(-self.r * self.T) * \
-            (((self.S) * norm.cdf(self.d1) + self.sigma * math.sqrt(self.T) * norm.pdf(self.d1)))
+            (((self.S) * norm.cdf(self.d1) + self.sigma * \
+              math.sqrt(self.T) * norm.pdf(self.d1)))
         return call_price
 
     def calculate_put_price(self) -> float:
-        # Define put price via put-call parity
-        call_price = self.calculate_call_price()
-        put_price = call_price - self.S + math.exp(-self.r * self.T) * self.K
+        put_price = math.exp(-self.r * self.T) * \
+            (((self.S) * norm.cdf(-self.d1) + self.sigma * \
+              math.sqrt(self.T) * norm.pdf(-self.d1)))
         return put_price
