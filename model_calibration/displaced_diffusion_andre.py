@@ -59,8 +59,9 @@ def impliedVolatility_dd(F, K, r, S, sigma, T, beta):
     print("price: ", price)
     print("payoff: ", payoff)
     print("check params: ", S, K, r, price, T, 'call' if K > S else 'put')
-    implied_vol = impliedVolatility(S, K, r, price, T, 
-                                                'call' if K > S else 'put')
+    # implied_vol = impliedVolatility(S, K, r, price, T, 
+    #                                             'call' if K > S else 'put')
+    implied_vol = impliedCallVolatility(S, K, r, price, T)
     print("check implied_vol: ", implied_vol)
     return implied_vol
 
@@ -95,7 +96,21 @@ def BlackScholesLognormalPut(S, K, r, sigma, T):
     d2 = d1 - sigma*np.sqrt(T)
     return K*np.exp(-r*T)*norm.cdf(-d2) - S*norm.cdf(-d1)
 
+def BlackScholesCall(S, K, r, sigma, T):
+    d1 = (np.log(S/K)+(r+sigma**2/2)*T) / (sigma*np.sqrt(T))
+    d2 = d1 - sigma*np.sqrt(T)
+    return S*norm.cdf(d1) - K*np.exp(-r*T)*norm.cdf(d2)
 
+
+def impliedCallVolatility(S, K, r, price, T):
+    try:
+        impliedVol = brentq(lambda x: price -
+                            BlackScholesCall(S, K, r, x, T),
+                            1e-6, 1)
+    except Exception:
+        impliedVol = np.nan
+
+    return impliedVol
 #####
 # Here, load DataFrame with strike and implied volatility information into "df"
 #####
