@@ -36,6 +36,7 @@ class AbstractBlackScholesModel(AbstractOptionModel):
 
         self.d1 = self._calculate_d1()
         self.d2 = self._calculate_d2()
+        self.discount_factor = np.exp(-self.r * self.T)
 
     def _calculate_d1(self) -> float:
         return (np.log(self.S / self.K) + (self.r + 0.5 * self.sigma**2) * self.T) / (
@@ -48,22 +49,22 @@ class AbstractBlackScholesModel(AbstractOptionModel):
 
 class VanillaBlackScholesModel(AbstractBlackScholesModel):
     def calculate_call_price(self) -> float:
-        return self.S * norm.cdf(self.d1) - self.K * np.exp(
-            -self.r * self.T
-        ) * norm.cdf(self.d2)
+        return self.S * norm.cdf(self.d1) - self.K * self.discount_factor * norm.cdf(
+            self.d2
+        )
 
     def calculate_put_price(self) -> float:
-        return self.K * np.exp(-self.r * self.T) * norm.cdf(
-            -self.d2
-        ) - self.S * norm.cdf(-self.d1)
+        return self.K * self.discount_factor * norm.cdf(-self.d2) - self.S * norm.cdf(
+            -self.d1
+        )
 
 
 class DigitalCashOrNothingBlackScholesModel(AbstractBlackScholesModel):
     def calculate_call_price(self) -> float:
-        return np.exp(-self.r * self.T) * norm.cdf(self.d2)
+        return self.discount_factor * norm.cdf(self.d2)
 
     def calculate_put_price(self) -> float:
-        return np.exp(-self.r * self.T) * norm.cdf(-self.d2)
+        return self.discount_factor * norm.cdf(-self.d2)
 
 
 class DigitalAssetOrNothingBlackScholesModel(AbstractBlackScholesModel):
