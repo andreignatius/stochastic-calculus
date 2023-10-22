@@ -142,7 +142,7 @@ for K in strikes:
 # populate "df" with the dataframe containing strikes and market implied volatilities
 df = pd.DataFrame({'strike': strikes, 'impliedvol': impliedvols})
 
-initialGuess = [0.1， 0.2]
+initialGuess = [0.1, 0.2]
 res = least_squares(lambda x: dd_calibration(x, df['strike'], df['impliedvol'], F, S, 0.001255, 0.046575), initialGuess,bounds=([0.0,0.0],[1.0,1.0]))
 beta, sigma = res.x
 
