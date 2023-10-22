@@ -9,6 +9,19 @@ Consider the following European options:<br>
 
 Derive and implement the following models to value these options in Python:<br>
 1 Black-Scholes model<br>
+\begin{align*}
+1. & \text{Black-Scholes Model:} \\
+i) & S_T = S_0 \exp \left[ (r - \frac{\sigma^2}{2})T + \sigma W_T \right], \quad W_T \sim N(0, T) \\
+& = S_0 \exp \left[ (r - \frac{\sigma^2}{2})T + \sigma X \right], \quad X \sim N(0, 1) \\
+2) & \text{Vanilla call:} \\
+V_c & = e^{-rT} E \left[ (S_T - K)^+ \right], \quad S_T > K \Rightarrow X = \frac{\log \left( \frac{S_0}{K} \right) + (r - \frac{\sigma^2}{2})T}{\sigma \sqrt{T}} = X^* \\
+& = \frac{e^{-rT}}{\sqrt{2\pi}} \int_{X^*}^{\infty} (S_0 \exp \left[ (r - \frac{\sigma^2}{2})T + \sigma X \right] - K) dX \\
+& = \frac{S_0}{\sqrt{2\pi}} \int_{X^*}^{\infty} e^{- \frac{(X - \frac{\sigma^2 T}{2})^2}{2}} dX - e^{-rT} \frac{K}{\sqrt{2\pi}} \int_{X^*}^{\infty} e^{- \frac{X^2}{2}} dX \\
+& = S_0 \left[ \Phi(X^*) - \Phi \left( X^* - \sigma \sqrt{T} \right) \right] - K e^{-rT} \left[ \Phi(X^*) - \Phi(X^*) \right] \\
+& = S_0 \Phi \left( \frac{\log \left( \frac{S_0}{K} \right) + (r + \frac{\sigma^2}{2})T}{\sigma \sqrt{T}} \right) - K e^{-rT} \Phi \left( \frac{\log \left( \frac{S_0}{K} \right) + (r - \frac{\sigma^2}{2})T}{\sigma \sqrt{T}} \right) \\
+& = S_0 \Phi(d_1) - K e^{-rT} \Phi(d_2) \\
+& \text{where, } d_2 = d_1 - \sigma \sqrt{T}
+\end{align*}
 2 Bachelier model<br>
 3 Black76 model<br>
 4 Displaced-diffusion model<br>
