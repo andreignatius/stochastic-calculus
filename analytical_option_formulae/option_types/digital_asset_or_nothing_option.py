@@ -6,14 +6,22 @@ from .option_models.displaced_diffusion_model import *
 
 
 class DigitalAssetOrNothingOption(AbstractOption):
-    def black_scholes_model(self) -> AbstractBlackScholesModel:
-        return DigitalAssetOrNothingBlackScholesModel()
+    def black_scholes_model(
+        self, S: float, K: float, r: float, sigma: float, T: float
+    ) -> AbstractBlackScholesModel:
+        return DigitalAssetOrNothingBlackScholesModel(S, K, r, sigma, T)
 
-    def bachelier_model(self) -> AbstractBachelierModel:
-        return DigitalAssetOrNothingBachelierModel()
+    def bachelier_model(
+        self, S: float, K: float, r: float, sigma: float, T: float
+    ) -> AbstractBachelierModel:
+        return DigitalAssetOrNothingBachelierModel(S, K, r, sigma, T)
 
-    def black_76_model(self) -> AbstractBlack76Model:
-        return DigitalAssetOrNothingBlack76Model()
+    def black_76_model(
+        self, S: float, K: float, r: float, sigma: float, T: float
+    ) -> AbstractBlack76Model:
+        return DigitalAssetOrNothingBlack76Model(S, K, r, sigma, T)
 
-    def displaced_diffusion_model(self) -> AbstractDisplacedDiffusionModel:
-        return DigitalAssetOrNothingDisplacedDiffusionModel()
+    def displaced_diffusion_model(
+        self, S: float, K: float, r: float, sigma: float, T: float, beta: float
+    ) -> AbstractDisplacedDiffusionModel:
+        return DigitalAssetOrNothingDisplacedDiffusionModel(S, K, r, sigma, T, beta)
