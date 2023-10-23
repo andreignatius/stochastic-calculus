@@ -18,7 +18,8 @@ from scipy.optimize import least_squares
 def dd_calibration(x, strikes, market_vols, F, S, r, T):
     # sigma, beta = x
     sigma = x
-    beta = 1.0 # work on assumption that beta is 1
+    beta =  1.0
+    #1.0 # work on assumption that beta is 1
     err = 0.0
     # print("check strikes: ", strikes)
     for i, K in enumerate(strikes):
@@ -49,20 +50,21 @@ def impliedVolatility_dd(F, K, r, S, sigma, T, beta):
     dd_model = VanillaDisplacedDiffusionModel(F, K, r, sigma, T, beta)
 
     # Determine if it's a call or put based on moneyness
-    if K > F:
+    if True:
+    #if K > F:
         price = dd_model.calculate_call_price()
         payoff = 'call'
     else:
         price = dd_model.calculate_put_price()
         payoff = 'put'
 
-    print("price: ", price)
-    print("payoff: ", payoff)
-    print("check params: ", S, K, r, price, T, 'call' if K > S else 'put')
+    #print("price: ", price)
+    #print("payoff: ", payoff)
+    #print("check params: ", S, K, r, price, T, 'call' if K > S else 'put')
     # implied_vol = impliedVolatility(S, K, r, price, T, 
     #                                             'call' if K > S else 'put')
-    implied_vol = impliedCallVolatility(S, K, r, price, T)
-    print("check implied_vol: ", implied_vol)
+    implied_vol = impliedVolatility(S, K, r, price, T, payoff)
+    #print("check implied_vol: ", implied_vol)
     return implied_vol
 
 def impliedVolatility(S, K, r, price, T, payoff):
@@ -161,9 +163,11 @@ print("beta: ", beta)
 print("sigma: ", sigma)
 
 displaced_vols = [impliedVolatility_dd(F, K, r, S, sigma, T, beta) for K in strikes]
+print(len(displaced_vols))
+print(len(strikes))
 # print('Calibrated SABR model parameters: alpha = %.3f, beta = %.1f, rho = %.3f, nu = %.3f' % (alpha, beta, rho, nu))
-print("check strikes: ", strikes)
-print("check displaced_vols: ", displaced_vols)
+#print("check strikes: ", strikes)
+#print("check displaced_vols: ", displaced_vols)
 # sabrvols = []
 # for K in strikes:
 #     sabrvols.append(SABR(F, K, T, alpha, beta, rho, nu))
