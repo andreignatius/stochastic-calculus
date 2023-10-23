@@ -1,7 +1,15 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from scipy.stats import norm
+import sys
 import time
+
+sys.path.append("..")
+from analytical_option_formulae.option_types.vanilla_option import VanillaOption
+
+
+# Define common functions and models
+vanilla_option = VanillaOption()
 
 
 def simulate_paths(S0, sigma, r, T, N, n_paths):
@@ -48,10 +56,8 @@ hedging_intervals = [21, 84]
 errors = {N: [] for N in hedging_intervals}
 
 
-def bs_call_price(S, K, r, sigma, T):
-    d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
-    d2 = d1 - sigma * np.sqrt(T)
-    return S * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
+black_scholes_model = vanilla_option.black_scholes_model(S_0, K, r, sigma, T)
+black_scholes_call_price = black_scholes_model.calculate_call_price()
 
 
 for N in hedging_intervals:
@@ -60,9 +66,9 @@ for N in hedging_intervals:
     paths = simulate_paths(S_0, sigma, r, T, N, num_paths)
     B = np.exp(r * np.linspace(0, T, N + 1))  # Bond value at each time step
 
-    portfolio_values = bs_call_price(
-        S_0, K, r, sigma, T
-    )  # Initial portfolio value when selling the call
+    portfolio_values = (
+        black_scholes_call_price  # Initial portfolio value when selling the call
+    )
 
     cash = (
         portfolio_values
