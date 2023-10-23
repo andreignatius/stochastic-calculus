@@ -18,24 +18,25 @@ def calculate_stock_price(
     return S * np.exp((r * t - 0.5 * sigma**2 * t) + sigma * W)
 
 
-def calculate_phi(S_t: float, K: float, r: float, sigma: float, T: float, t: float):
+def calculate_phi(
+    S_t: float, K: float, r: float, sigma: float, T: float, t: float
+) -> float:
     d1 = (np.log(S_t / K) + (r + 0.5 * sigma**2) * (T - t)) / (sigma * np.sqrt(T - t))
     return norm.cdf(d1)
 
 
-def calculate_psi(S_t: float, K: float, r: float, sigma: float, T: float, t: float):
+def calculate_psi(
+    S_t: float, K: float, r: float, sigma: float, T: float, t: float
+) -> float:
     d2 = (np.log(S_t / K) + (r - 0.5 * sigma**2) * (T - t)) / (sigma * np.sqrt(T - t))
     return -K * np.exp(-r * (T - t)) * norm.cdf(d2)
 
 
-def simulate_paths(S0, sigma, r, T, N, n_paths):
-    dt = T / N
-    dW = np.random.randn(N, n_paths) * np.sqrt(dt)  # Array of Wiener increments
-    paths = np.zeros((N + 1, n_paths))
-    paths[0] = S0
-    for t in range(1, N + 1):
-        paths[t] = calculate_stock_price(paths[t - 1], r, sigma, dt, dW[t - 1])
-    return paths
+def simulate_brownian_paths(n_paths: int, T: float, n_steps: int):
+    dt = T / n_steps
+    t = np.linspace(0, T, n_steps + 1)
+    X = np.c_[np.zeros((n_paths, 1)), np.random.randn(n_paths, n_steps)]
+    return t, np.cumsum(np.sqrt(dt) * X, axis=1)
 
 
 # Record the start time
@@ -60,7 +61,7 @@ black_scholes_call_price = black_scholes_model.calculate_call_price()
 for N in hedging_intervals:
     dt = T / N
 
-    paths = simulate_paths(S_0, sigma, r, T, N, num_paths)
+    paths = simulate_brownian_paths(num_paths, T, N)
     B = np.exp(r * np.linspace(0, T, N + 1))  # Bond value at each time step
 
     portfolio_values = (
