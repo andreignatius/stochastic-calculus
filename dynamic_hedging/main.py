@@ -23,13 +23,9 @@ def calculate_phi(S_t: float, K: float, r: float, sigma: float, T: float, t: flo
     return norm.cdf(d1)
 
 
-def compute_psi(paths, K, r, sigma, t, T):
-    dt = T / paths.shape[0]
-    d1 = (np.log(paths[t] / K) + (r + 0.5 * sigma**2) * (T - t * dt)) / (
-        sigma * np.sqrt(T - t * dt)
-    )
-    d2 = d1 - sigma * np.sqrt(T - t * dt)
-    return -K * np.exp(-r * T) * norm.cdf(d2)
+def calculate_psi(S_t: float, K: float, r: float, sigma: float, T: float, t: float):
+    d2 = (np.log(S_t / K) + (r - 0.5 * sigma**2) * (T - t)) / (sigma * np.sqrt(T - t))
+    return -K * np.exp(-r * (T - t)) * norm.cdf(d2)
 
 
 def simulate_paths(S0, sigma, r, T, N, n_paths):
@@ -74,7 +70,7 @@ for N in hedging_intervals:
     cash = (
         portfolio_values
         - calculate_phi(paths[0], K, r, sigma, T, 0 * T / paths.shape[0]) * paths[0]
-        + compute_psi(paths, K, r, sigma, 0, T)
+        + calculate_psi(paths[0], K, r, sigma, T, 0 * T / paths.shape[0])
     )  # Adjusted cash position
 
     for t in range(1, N):  # Start from 1 as we've already initialized at t=0
