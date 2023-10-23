@@ -50,7 +50,7 @@ for N in hedging_intervals:
     
     portfolio_values = bs_call_price(S_0, K, r, sigma, T)  # Initial portfolio value when selling the call
     
-    cash = portfolio_values - compute_phi(paths, K, r, sigma, 0, T) * paths[0]  # Cash position after selling option and buying stock
+    cash = portfolio_values - compute_phi(paths, K, r, sigma, 0, T) * paths[0] + compute_psi(paths, K, r, sigma, 0, T)  # Adjusted cash position
     
     for t in range(1, N):  # Start from 1 as we've already initialized at t=0
         delta_prev = compute_phi(paths, K, r, sigma, t-1, T)
