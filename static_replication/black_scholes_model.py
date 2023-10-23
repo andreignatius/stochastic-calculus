@@ -45,28 +45,7 @@ I_call = quad(lambda x: callintegrand_BSM(x), F, 5000)
 E_var = 2*np.exp(r*T) * (I_put[0] + I_call[0])
 
 
-print('The expected integrated variance is 000: %.9f' % E_var)
-
-def callintegrand_BSM(K):
-    vanillaBSM = VanillaBlackScholesModel(S, K, r, sigma, T)
-    price = vanillaBSM.calculate_call_price()
-    return price / K**2
-
-def putintegrand_BSM(K):
-    vanillaBSM = VanillaBlackScholesModel(S, K, r, sigma, T)
-    price = vanillaBSM.calculate_put_price()
-    return price / K**2
-
-
-
-I_put = quad(lambda x: putintegrand_BSM(x), 0.0, F)
-I_call = quad(lambda x: callintegrand_BSM(x), F, 5000)
-E_var = 2*np.exp(r*T)*(I_put[0] + I_call[0])
-print('The expected integrated variance is 111: %.9f' % E_var)
-
-vanillaBSM = VanillaBlackScholesModel(S, K, r, sigma, T)
-print("BSM call price: ", vanillaBSM.calculate_call_price())
-print("BSM put price: ", vanillaBSM.calculate_put_price())
+print('The expected integrated variance is: %.9f' % E_var)
 
 sigma = math.sqrt( E_var / T)
 print('What sigma should we use: ', sigma)
