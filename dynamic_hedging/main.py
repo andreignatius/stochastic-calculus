@@ -18,11 +18,8 @@ def calculate_stock_price(
     return S * np.exp((r * t - 0.5 * sigma**2 * t) + sigma * W)
 
 
-def compute_phi(paths, K, r, sigma, t, T):
-    dt = T / paths.shape[0]
-    d1 = (np.log(paths[t] / K) + (r + 0.5 * sigma**2) * (T - t * dt)) / (
-        sigma * np.sqrt(T - t * dt)
-    )
+def calculate_phi(S_t: float, K: float, r: float, sigma: float, T: float, t: float):
+    d1 = (np.log(S_t / K) + (r + 0.5 * sigma**2) * (T - t)) / (sigma * np.sqrt(T - t))
     return norm.cdf(d1)
 
 
@@ -76,13 +73,15 @@ for N in hedging_intervals:
 
     cash = (
         portfolio_values
-        - compute_phi(paths, K, r, sigma, 0, T) * paths[0]
+        - calculate_phi(paths[0], K, r, sigma, T, 0 * T / paths.shape[0]) * paths[0]
         + compute_psi(paths, K, r, sigma, 0, T)
     )  # Adjusted cash position
 
     for t in range(1, N):  # Start from 1 as we've already initialized at t=0
-        delta_prev = compute_phi(paths, K, r, sigma, t - 1, T)
-        delta_now = compute_phi(paths, K, r, sigma, t, T)
+        delta_prev = calculate_phi(
+            paths[t], K, r, sigma, T, (t - 1) * T / paths.shape[0]
+        )
+        delta_now = calculate_phi(paths[t], K, r, sigma, T, t * T / paths.shape[0])
 
         # Adjust portfolio for change in stock and bond positions
         cash -= (delta_now - delta_prev) * paths[t]
