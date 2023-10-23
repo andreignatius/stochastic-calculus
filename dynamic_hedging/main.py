@@ -12,16 +12,10 @@ from analytical_option_formulae.option_types.vanilla_option import VanillaOption
 vanilla_option = VanillaOption()
 
 
-def simulate_paths(S0, sigma, r, T, N, n_paths):
-    dt = T / N
-    dW = np.random.randn(N, n_paths) * np.sqrt(dt)  # Array of Wiener increments
-    paths = np.zeros((N + 1, n_paths))
-    paths[0] = S0
-    for t in range(1, N + 1):
-        paths[t] = paths[t - 1] * np.exp(
-            (r - 0.5 * sigma**2) * dt + sigma * dW[t - 1]
-        )
-    return paths
+def calculate_stock_price(
+    S: float, r: float, sigma: float, t: float, W: float
+) -> float:
+    return S * np.exp((r * t - 0.5 * sigma**2 * t) + sigma * W)
 
 
 def compute_phi(paths, K, r, sigma, t, T):
@@ -39,6 +33,16 @@ def compute_psi(paths, K, r, sigma, t, T):
     )
     d2 = d1 - sigma * np.sqrt(T - t * dt)
     return -K * np.exp(-r * T) * norm.cdf(d2)
+
+
+def simulate_paths(S0, sigma, r, T, N, n_paths):
+    dt = T / N
+    dW = np.random.randn(N, n_paths) * np.sqrt(dt)  # Array of Wiener increments
+    paths = np.zeros((N + 1, n_paths))
+    paths[0] = S0
+    for t in range(1, N + 1):
+        paths[t] = calculate_stock_price(paths[t - 1], r, sigma, dt, dW[t - 1])
+    return paths
 
 
 # Record the start time
