@@ -21,7 +21,7 @@ def compute_psi(paths, K, r, sigma, t, T):
     dt = T/paths.shape[0]
     d1 = (np.log(paths[t]/K) + (r + 0.5*sigma**2)*(T-t*dt)) / (sigma*np.sqrt(T-t*dt))
     d2 = d1 - sigma*np.sqrt(T-t*dt)
-    return -K * np.exp(-r*T) * norm.cdf(d2)
+    return -K * np.exp(-r*(T-t*dt)) * norm.cdf(d2)
 
 # Record the start time
 start_time = time.time()
@@ -46,7 +46,6 @@ for N in hedging_intervals:
     dt = T/N  
     
     paths = simulate_paths(S_0, sigma, r, T, N, num_paths)
-    B = np.exp(r * np.linspace(0, T, N+1))  # Bond value at each time step
     
     portfolio_values = bs_call_price(S_0, K, r, sigma, T)  # Initial portfolio value when selling the call
     
