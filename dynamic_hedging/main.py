@@ -42,26 +42,62 @@ def bs_call_price(S, K, r, sigma, T):
     d2 = d1 - sigma*np.sqrt(T)
     return S * norm.cdf(d1) - K * np.exp(-r*T) * norm.cdf(d2)
 
+# for N in hedging_intervals:
+#     dt = T/N  
+    
+#     paths = simulate_paths(S_0, sigma, r, T, N, num_paths)
+#     B = np.exp(r * np.linspace(0, T, N+1))  # Bond value at each time step
+    
+#     portfolio_values = bs_call_price(S_0, K, r, sigma, T)  # Initial portfolio value when selling the call
+    
+#     cash = portfolio_values - compute_phi(paths, K, r, sigma, 0, T) * paths[0] + compute_psi(paths, K, r, sigma, 0, T)  # Adjusted cash position
+    
+#     for t in range(1, N):  # Start from 1 as we've already initialized at t=0
+#         delta_prev = compute_phi(paths, K, r, sigma, t-1, T)
+#         delta_now = compute_phi(paths, K, r, sigma, t, T)
+        
+#         # Adjust portfolio for change in stock and bond positions
+#         cash -= (delta_now - delta_prev) * paths[t]
+#         cash *= np.exp(r*dt)  # Account for risk-free interest on cash
+        
+#         portfolio_values = cash + delta_now * paths[t]  # Update portfolio value
+    
+#     option_payoffs = np.maximum(paths[-1] - K, 0)
+#     hedging_errors = portfolio_values - option_payoffs
+#     errors[N] = hedging_errors
+    
+#     plt.hist(hedging_errors, bins=50, alpha=0.5, label=f'N={N}')
+#     plt.legend()
 for N in hedging_intervals:
     dt = T/N  
     
     paths = simulate_paths(S_0, sigma, r, T, N, num_paths)
     
     portfolio_values = bs_call_price(S_0, K, r, sigma, T)  # Initial portfolio value when selling the call
+    delta_initial = compute_phi(paths, K, r, sigma, 0, T)
     
-    cash = portfolio_values - compute_phi(paths, K, r, sigma, 0, T) * paths[0] + compute_psi(paths, K, r, sigma, 0, T)  # Adjusted cash position
+    # Initial positions in stock and bond
+    stock_position = delta_initial * paths[0]
+    bond_position = portfolio_values - stock_position  # Everything not invested in stock is invested in bond
     
-    for t in range(1, N):  # Start from 1 as we've already initialized at t=0
-        delta_prev = compute_phi(paths, K, r, sigma, t-1, T)
+    for t in range(1, N):  
         delta_now = compute_phi(paths, K, r, sigma, t, T)
         
-        # Adjust portfolio for change in stock and bond positions
-        cash -= (delta_now - delta_prev) * paths[t]
-        cash *= np.exp(r*dt)  # Account for risk-free interest on cash
+        # Calculate change in stock position based on new delta
+        change_in_stock = (delta_now - delta_initial) * paths[t]
         
-        portfolio_values = cash + delta_now * paths[t]  # Update portfolio value
+        # Update bond position: account for interest and change in stock position
+        bond_position = bond_position * np.exp(r*dt) - change_in_stock
+        
+        # Update stock position
+        stock_position = delta_now * paths[t]
+        
+        delta_initial = delta_now
     
     option_payoffs = np.maximum(paths[-1] - K, 0)
+    
+    # Total portfolio value = stock position + bond position
+    portfolio_values = stock_position + bond_position
     hedging_errors = portfolio_values - option_payoffs
     errors[N] = hedging_errors
     
