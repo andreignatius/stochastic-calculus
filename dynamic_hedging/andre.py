@@ -21,7 +21,7 @@ def simulate_Brownian_Motion(paths, steps, T):
               np.random.randn(paths, steps)]
     return t, np.cumsum(np.sqrt(deltaT) * X, axis=1)
 
-paths = 1000
+paths = 50000
 hedging_steps = [21, 84]
 maturity = 1.0/12
 
