@@ -41,7 +41,7 @@ def payoff_function(S: float) -> float:
 
 
 def payoff_function_second_derivative(S: float) -> float:
-    return -2 / (9 * S**5 / 3) - 1.5 / S
+    return -2 / (9 * S**5 / 3) - 1.5 / S**2
 
 
 # BS Model
