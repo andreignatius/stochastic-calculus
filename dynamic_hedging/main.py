@@ -82,6 +82,8 @@ for hedging_step in hedging_steps:
     simulation_results = compute_hedging_error(S_0, K, r, sigma, T, t, x)
     hedging_errors.append(simulation_results)
 
+plt.figure(figsize=(12,6))
+
 plt.subplot(121)
 for i, hedging_step in enumerate(hedging_steps):
     plt.hist(
@@ -110,5 +112,8 @@ plt.title('Frequency Distribution of Hedging Errors (percentage)')
 plt.xlabel('Hedging Error')
 plt.ylabel('Frequency (%)')
 
-plt.show()
 plt.savefig("Part_4_Hedging_Error.png")
+
+plt.show()
+
+
