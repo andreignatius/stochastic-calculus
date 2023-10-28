@@ -75,20 +75,40 @@ hedging_steps = [21, 84]
 # Set seed
 np.random.seed(42)
 
+hedging_errors = []
 # Computation & Visualisation
 for hedging_step in hedging_steps:
     t, x = simulate_brownian_paths(num_paths, T, hedging_step)
     simulation_results = compute_hedging_error(S_0, K, r, sigma, T, t, x)
+    hedging_errors.append(simulation_results)
+
+plt.subplot(121)
+for i, hedging_step in enumerate(hedging_steps):
     plt.hist(
-        simulation_results,
+        hedging_errors[i],
         bins=50,
         align="mid",
         alpha=0.5,
         label=f"N={hedging_step}",
     )
     plt.xlim(-2, 2)
-    plt.legend()
-    plt.title("Frequency Distribution of Hedging Errors")
-    plt.xlabel("Hedging Error")
-    plt.ylabel("Frequencies")
+plt.legend()
+plt.title("Frequency Distribution of Hedging Errors (count)")
+plt.xlabel("Hedging Error")
+plt.ylabel("Frequencies")
+
+plt.subplot(122)
+for i, hedging_step in enumerate(hedging_steps):
+    bins = np.arange(-2.0, 2.1, 0.1)
+    counts, edges = np.histogram(hedging_errors[i], bins=bins)
+    # Convert counts to percentage
+    percentages = counts / counts.sum() * 100
+    plt.bar(edges[:-1], percentages, width=np.diff(edges), align="edge", alpha=0.5, label=f'N={hedging_step}')
+
+plt.legend()
+plt.title('Frequency Distribution of Hedging Errors (percentage)')
+plt.xlabel('Hedging Error')
+plt.ylabel('Frequency (%)')
+
+plt.show()
 plt.savefig("Part_4_Hedging_Error.png")
