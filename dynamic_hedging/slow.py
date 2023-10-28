@@ -35,10 +35,11 @@ for steps in hedging_steps:
     dt = maturity / steps
     path_hedging_error = []
     for i in range(paths):
-        # print("len W_T: ", len(W_T))
-        # print("W_T[i]: ", W_T[i])
+        if i % 1000 == 0 and i > 0:
+            print("paths explored: ", i)
+            
         blackscholespath = S0*np.exp((r-sigma**2/2)*T + sigma*W_T[i])
-        # print("blackscholespath: ", blackscholespath)
+
         deltas = []
         stockhedge_errors = []
         bondhedge_errors = []
@@ -65,12 +66,9 @@ for steps in hedging_steps:
 
             prev_phi = phi(S_t, K, r, sigma, maturity-t)
             prev_bond_pos = bond_pos
-        # print("hedging_errors1: ", len(hedging_errors))
-        # print("hedging_errors_sum: ", sum(hedging_errors))
+
         path_hedging_error.append(sum(hedging_errors))
-        # print("path_hedging_error1:" , path_hedging_error)
-    # print("for N: ", steps)
-    # print("hedging_errors: ", len(path_hedging_error))
+
     bins = np.arange(-2.0, 2.1, 0.1)
     counts, edges = np.histogram(path_hedging_error, bins=bins)
     # Convert counts to percentage
