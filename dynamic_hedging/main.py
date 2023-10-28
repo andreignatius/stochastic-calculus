@@ -1,87 +1,122 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import numpy.typing as npt
 from scipy.stats import norm
-import time
 
-def simulate_paths(S0, sigma, r, T, N, n_paths):
-    dt = T/N
-    dW = np.random.randn(N, n_paths) * np.sqrt(dt)  # Array of Wiener increments
-    paths = np.zeros((N+1, n_paths))
-    paths[0] = S0
-    for t in range(1, N+1):
-        paths[t] = paths[t-1] * np.exp((r - 0.5*sigma**2)*dt + sigma*dW[t-1])
-    return paths
+import sys
 
-def compute_phi(paths, K, r, sigma, t, T):
-    dt = T/paths.shape[0]
-    d1 = (np.log(paths[t]/K) + (r + 0.5*sigma**2)*(T-t*dt)) / (sigma*np.sqrt(T-t*dt))
+sys.path.append("..")
+from analytical_option_formulae.option_types.vanilla_option import VanillaOption
+
+
+# Define common functions and models
+vanilla_option = VanillaOption()
+
+
+def calculate_stock_prices(
+    S: float, r: float, sigma: float, t: npt.NDArray, W: npt.NDArray
+) -> float:
+    return S * np.exp((r * t - 0.5 * sigma**2 * t) + sigma * W)
+
+
+def calculate_phi(
+    S_t: npt.NDArray, K: float, r: float, sigma: float, T: float, t: npt.NDArray
+) -> float:
+    d1 = (np.log(S_t / K) + (r + 0.5 * sigma**2) * (T - t)) / (sigma * np.sqrt(T - t))
     return norm.cdf(d1)
 
-def compute_psi(paths, K, r, sigma, t, T):
-    dt = T/paths.shape[0]
-    d1 = (np.log(paths[t]/K) + (r + 0.5*sigma**2)*(T-t*dt)) / (sigma*np.sqrt(T-t*dt))
-    d2 = d1 - sigma*np.sqrt(T-t*dt)
-    return -K * np.exp(-r*(T-t*dt)) * norm.cdf(d2)
 
-# Record the start time
-start_time = time.time()
+def calculate_psi_Bt(
+    S_t: npt.NDArray, K: float, r: float, sigma: float, T: float, t: npt.NDArray
+) -> npt.NDArray:
+    d2 = (np.log(S_t / K) + (r - 0.5 * sigma**2) * (T - t)) / (sigma * np.sqrt(T - t))
+    return -K * np.exp(-r * (T - t)) * norm.cdf(d2)
 
-S_0 = 100
-K = 100
-sigma = 0.2
-r = 0.05
-T = 1/12
+
+def simulate_brownian_paths(
+    n_paths: int, T: float, n_steps: int
+) -> tuple[npt.NDArray, npt.NDArray]:
+    dt = T / n_steps
+    t = np.linspace(0, T, n_steps + 1)
+    X = np.c_[np.zeros((n_paths, 1)), np.random.randn(n_paths, n_steps)]
+    return t, np.cumsum(np.sqrt(dt) * X, axis=1)
+
+
+def compute_hedging_error(
+    S_0: float,
+    K: float,
+    r: float,
+    sigma: float,
+    T: float,
+    t: npt.NDArray,
+    brownian_paths: npt.NDArray,
+):
+    stock_prices = calculate_stock_prices(S_0, r, sigma, t, brownian_paths)
+    phi_values = calculate_phi(stock_prices, K, r, sigma, T, t)
+    psi_b_values = calculate_psi_Bt(stock_prices, K, r, sigma, T, t)
+    stock_hedging_err = -np.diff(phi_values) * stock_prices[:, 1:]
+    bond_hedging_err = (
+        psi_b_values[:, :-1] * np.exp(r * T / len(t)) - psi_b_values[:, 1:]
+    )
+    hedging_err = stock_hedging_err + bond_hedging_err
+    hedging_err_sum = np.sum(hedging_err, axis=1)
+    return hedging_err_sum
+
 
 # Parameters
+S_0 = 100
+K = 100
+r = 0.05
+sigma = 0.2
+T = 1 / 12
 num_paths = 50000
-hedging_intervals = [21, 84]  
-errors = {N: [] for N in hedging_intervals}  
+hedging_steps = [21, 84]
 
-def bs_call_price(S, K, r, sigma, T):
-    d1 = (np.log(S/K) + (r + 0.5*sigma**2)*T) / (sigma*np.sqrt(T))
-    d2 = d1 - sigma*np.sqrt(T)
-    return S * norm.cdf(d1) - K * np.exp(-r*T) * norm.cdf(d2)
+# Set seed
+np.random.seed(42)
 
-for N in hedging_intervals:
-    dt = T/N  
-    
-    paths = simulate_paths(S_0, sigma, r, T, N, num_paths)
-    
-    portfolio_values = bs_call_price(S_0, K, r, sigma, T)  # Initial portfolio value when selling the call
-    delta_initial = compute_phi(paths, K, r, sigma, 0, T)
-    
-    # Initial positions in stock and bond
-    stock_position = delta_initial * paths[0]
-    bond_position = portfolio_values - stock_position  # Everything not invested in stock is invested in bond
-    
-    for t in range(1, N):  
-        delta_now = compute_phi(paths, K, r, sigma, t, T)
-        
-        # Calculate change in stock position based on new delta
-        change_in_stock = (delta_now - delta_initial) * paths[t]
-        
-        # Update bond position: account for interest and change in stock position
-        bond_position = bond_position * np.exp(r*dt) - change_in_stock
-        
-        # Update stock position
-        stock_position = delta_now * paths[t]
-        
-        delta_initial = delta_now
-    
-    option_payoffs = np.maximum(paths[-1] - K, 0)
-    
-    # Total portfolio value = stock position + bond position
-    portfolio_values = stock_position + bond_position
-    hedging_errors = portfolio_values - option_payoffs
-    errors[N] = hedging_errors
-    
-    plt.hist(hedging_errors, bins=50, alpha=0.5, label=f'N={N}')
-    plt.legend()
+hedging_errors = []
+# Computation & Visualisation
+for hedging_step in hedging_steps:
+    t, x = simulate_brownian_paths(num_paths, T, hedging_step)
+    simulation_results = compute_hedging_error(S_0, K, r, sigma, T, t, x)
+    hedging_errors.append(simulation_results)
 
-end_time = time.time()
-elapsed_time = end_time - start_time
-print(f"Time elapsed: {elapsed_time} seconds")
-plt.xlabel(r'Hedging Error: ( Portfolio Value - Option Payoff ) (\$)')
-plt.ylabel(r'Frequency Count')
-plt.title(r'Frequency Distribution of Hedging Errors for Different Hedging Intervals')
-plt.show()
+plt.figure(figsize=(12, 6))
+
+plt.subplot(121)
+for i, hedging_step in enumerate(hedging_steps):
+    plt.hist(
+        hedging_errors[i],
+        bins=50,
+        align="mid",
+        alpha=0.5,
+        label=f"N={hedging_step}",
+    )
+    plt.xlim(-2, 2)
+plt.legend()
+plt.title("Frequency Distribution of Hedging Errors (count)")
+plt.xlabel("Hedging Error")
+plt.ylabel("Frequencies")
+
+plt.subplot(122)
+for i, hedging_step in enumerate(hedging_steps):
+    bins = np.arange(-2.0, 2.1, 0.1)
+    counts, edges = np.histogram(hedging_errors[i], bins=bins)
+    # Convert counts to percentage
+    percentages = counts / counts.sum() * 100
+    plt.bar(
+        edges[:-1],
+        percentages,
+        width=np.diff(edges),
+        align="edge",
+        alpha=0.5,
+        label=f"N={hedging_step}",
+    )
+
+plt.legend()
+plt.title("Frequency Distribution of Hedging Errors (percentage)")
+plt.xlabel("Hedging Error")
+plt.ylabel("Frequency (%)")
+
+plt.savefig("Part_4_Hedging_Error.png")
