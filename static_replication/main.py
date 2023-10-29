@@ -231,39 +231,21 @@ F_spx = S_spx * np.exp(r * T)
 F_spy = S_spy * np.exp(r * T)
 K_spx = min(df_spx["strike_price"], key=lambda x: abs(x - F_spx))
 K_spy = min(df_spy["strike_price"], key=lambda x: abs(x - F_spy))
-atm_call_price_spx = df_spx[
-    (df_spx["cp_flag"] == "C") & (df_spx["strike_price"] == K_spx)
-]["mid"].values[0]
-atm_put_price_spx = df_spx[
-    (df_spx["cp_flag"] == "P") & (df_spx["strike_price"] == K_spx)
-]["mid"].values[0]
-atm_call_price_spy = df_spy[
-    (df_spy["cp_flag"] == "C") & (df_spy["strike_price"] == K_spy)
-]["mid"].values[0]
-atm_put_price_spy = df_spy[
-    (df_spy["cp_flag"] == "P") & (df_spy["strike_price"] == K_spy)
-]["mid"].values[0]
-sigma_spx = 0.5 * (
-    implied_volatility(S_spx, K_spx, r, atm_call_price_spx, T, "call")
-    + implied_volatility(S_spx, K_spx, r, atm_put_price_spx, T, "put")
-)
-sigma_spy = 0.5 * (
-    implied_volatility(S_spy, K_spy, r, atm_call_price_spy, T, "call")
-    + implied_volatility(S_spy, K_spy, r, atm_put_price_spy, T, "put")
-)
 
 # From part 2
+sigma_spx = 0.1849096526276905  # ATM sigma
+sigma_spy = 0.1972176434869465  # ATM sigma
 spx_sabr = {
-    "alpha": 1.8165044215904265,
+    "alpha": 1.8165044370781172,
     "beta": 0.7,
-    "rho": -0.404301752155599,
-    "nu": 2.790158336676563,
+    "rho": -0.4043017672449347,
+    "nu": 2.790158312103804,
 }
 spy_sabr = {
-    "alpha": 0.9081326352567946,
+    "alpha": 0.9081326337814014,
     "beta": 0.7,
-    "rho": -0.4887794498413489,
-    "nu": 2.728516341345507,
+    "rho": -0.4887794457550238,
+    "nu": 2.7285163417661487,
 }
 
 # Results
