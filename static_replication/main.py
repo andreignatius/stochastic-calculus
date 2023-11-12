@@ -298,8 +298,8 @@ Vc_spx = df_spx.iloc[(df_spx["strike_price"] - S_spx).abs().argsort()[:2]]["mid"
 Vc_spy = df_spy.iloc[(df_spy["strike_price"] - S_spy).abs().argsort()[:2]]["mid"].mean()
 
 # From part 2 - Model Calibration
-sigma_spx_bs = 0.1849096526276905  # ATM sigma
-sigma_spy_bs = 0.1972176434869465  # ATM sigma
+sigma_spx_bs = 0.18482902747992855  # ATM sigma
+sigma_spy_bs = 0.18403972806039456  # ATM sigma
 sigma_spx_bachelier = bachelier_sigma(Vc_spx, r, T, S_spx)
 sigma_spy_bachelier = bachelier_sigma(Vc_spy, r, T, S_spy)
 spx_sabr = {
