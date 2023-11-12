@@ -294,8 +294,16 @@ expiry_date = dt.date(2021, 1, 15)
 days_to_expiry = (expiry_date - start_date).days
 T = days_to_expiry / 365
 r = df_rates.loc[days_to_expiry]["rate_decimal"]
-Vc_spx = df_spx.iloc[(df_spx["strike_price"] - S_spx).abs().argsort()[:2]]["mid"].mean()
-Vc_spy = df_spy.iloc[(df_spy["strike_price"] - S_spy).abs().argsort()[:2]]["mid"].mean()
+df_spx = df_spx.loc[
+    ((df_spx["strike_price"] > S_spx) & (df_spx["cp_flag"] == "C"))
+    | ((df_spx["strike_price"] <= S_spx) & (df_spx["cp_flag"] == "P"))
+]
+df_spy = df_spy.loc[
+    ((df_spy["strike_price"] > S_spy) & (df_spy["cp_flag"] == "C"))
+    | ((df_spy["strike_price"] <= S_spy) & (df_spy["cp_flag"] == "P"))
+]
+Vc_spx = np.interp(S_spx, df_spx["strike_price"], df_spx["mid"])
+Vc_spy = np.interp(S_spy, df_spy["strike_price"], df_spy["mid"])
 
 # From part 2 - Model Calibration
 sigma_spx_bs = 0.1849096526276905  # ATM sigma
