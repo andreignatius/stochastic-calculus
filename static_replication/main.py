@@ -87,6 +87,11 @@ def bachelier_pricing(S: float, r: float, sigma: float, T: float) -> float:
     return discount_factor * (first_term + second_term + third_term)
 
 
+def bachelier_sigma(Vc: float, r: float, T: float, S: float) -> float:
+    discount_factor = np.exp(-r * T)
+    return Vc / (S * discount_factor * np.sqrt(T / (2 * np.pi)))
+
+
 # SABR Model
 
 
@@ -183,7 +188,6 @@ def sabrputintegrand(
 def static_replication_sabr(
     r: float,
     S: float,
-    K: float,
     T: float,
     alpha: float,
     beta: float,
@@ -227,14 +231,19 @@ expiry_date = dt.date(2021, 1, 15)
 days_to_expiry = (expiry_date - start_date).days
 T = days_to_expiry / 365
 r = df_rates.loc[days_to_expiry]["rate_decimal"]
-F_spx = S_spx * np.exp(r * T)
-F_spy = S_spy * np.exp(r * T)
-K_spx = min(df_spx["strike_price"], key=lambda x: abs(x - F_spx))
-K_spy = min(df_spy["strike_price"], key=lambda x: abs(x - F_spy))
 
-# From part 2
-sigma_spx = 0.1849096526276905  # ATM sigma
-sigma_spy = 0.1972176434869465  # ATM sigma
+Vc_spx = df_spx.iloc[(df_spx["strike_price"] - S_spx).abs().argsort()[:2]][
+    "mid"
+].mean()  # min(df_spx["strike_price"], key=lambda x: abs(x - S_spx))
+Vc_spy = df_spy.iloc[(df_spy["strike_price"] - S_spy).abs().argsort()[:2]][
+    "mid"
+].mean()  # min(df_spy["strike_price"], key=lambda x: abs(x - S_spy))
+
+# From part 2 - Model Calibration
+sigma_spx_bs = 0.1849096526276905  # ATM sigma
+sigma_spy_bs = 0.1972176434869465  # ATM sigma
+sigma_spx_bachelier = bachelier_sigma(Vc_spx, r, T, S_spx)
+sigma_spy_bachelier = bachelier_sigma(Vc_spy, r, T, S_spy)
 spx_sabr = {
     "alpha": 1.8165044370781172,
     "beta": 0.7,
@@ -249,15 +258,16 @@ spy_sabr = {
 }
 
 # Results
-## SPX
+## 1. Payoff Function
+### SPX
 spx_results = {
-    "sigma SPX": sigma_spx,
-    "BS price SPX": black_scholes_pricing(S_spx, r, sigma_spx, T),
-    "Bachelier price SPX": bachelier_pricing(S_spx, r, sigma_spx, T),
+    "sigma SPX Black Scholes": sigma_spx_bs,
+    "BS price SPX": black_scholes_pricing(S_spx, r, sigma_spx_bs, T),
+    "sigma SPX Bachelier": sigma_spx_bachelier,
+    "Bachelier price SPX": bachelier_pricing(S_spx, r, sigma_spx_bachelier, T),
     "Static replication SABR SPX": static_replication_sabr(
         r,
         S_spx,
-        K_spx,
         T,
         spx_sabr["alpha"],
         spx_sabr["beta"],
@@ -265,17 +275,18 @@ spx_results = {
         spx_sabr["nu"],
     ),
 }
+print("Price of SPX derivative contracts for payoff function: ")
 print(spx_results)
 
-## SPY
+### SPY
 spy_results = {
-    "sigma SPY": sigma_spy,
-    "BS price SPY": black_scholes_pricing(S_spy, r, sigma_spy, T),
-    "Bachelier price SPY": bachelier_pricing(S_spy, r, sigma_spy, T),
+    "sigma SPY Black Scholes": sigma_spy_bs,
+    "BS price SPY": black_scholes_pricing(S_spy, r, sigma_spy_bs, T),
+    "sigma SPY Bachelier": sigma_spy_bachelier,
+    "Bachelier price SPY": bachelier_pricing(S_spy, r, sigma_spy_bachelier, T),
     "Static replication SABR SPY": static_replication_sabr(
         r,
         S_spy,
-        K_spy,
         T,
         spy_sabr["alpha"],
         spy_sabr["beta"],
@@ -283,4 +294,131 @@ spy_results = {
         spy_sabr["nu"],
     ),
 }
+print("Price of SPY derivative contracts for payoff function: ")
+print(spy_results)
+
+## 2. Model-Free Integrated Variance
+
+
+# Black-Scholes
+
+
+def bs_model_free(
+    S: float,
+    r: float,
+    sigma: float,
+    T: float,
+) -> float:
+    F = S * np.exp(r * T)
+    integrand_multiplier = 2 * np.exp(r * T)
+    put_integrand = quad(
+        lambda x: vanilla_option.black_scholes_model(
+            S, x, r, sigma, T
+        ).calculate_put_price()
+        / (np.power(x, 2)),
+        1e-6,
+        F,
+    )[0]
+    call_integrand = quad(
+        lambda x: vanilla_option.black_scholes_model(
+            S, x, r, sigma, T
+        ).calculate_call_price()
+        / (np.power(x, 2)),
+        F,
+        float("inf"),
+    )[0]
+    return integrand_multiplier * put_integrand + integrand_multiplier * call_integrand
+
+
+# Bachelier
+
+
+def bachelier_model_free(
+    S: float,
+    r: float,
+    sigma: float,
+    T: float,
+) -> float:
+    F = S * np.exp(r * T)
+    integrand_multiplier = 2 * np.exp(r * T)
+    put_integrand = quad(
+        lambda x: vanilla_option.bachelier_model(
+            S, x, r, sigma, T
+        ).calculate_put_price()
+        / (np.power(x, 2)),
+        1e-6,
+        F,
+    )[0]
+    call_integrand = quad(
+        lambda x: vanilla_option.bachelier_model(
+            S, x, r, sigma, T
+        ).calculate_call_price()
+        / (np.power(x, 2)),
+        F,
+        float("inf"),
+    )[0]
+    return integrand_multiplier * put_integrand + integrand_multiplier * call_integrand
+
+
+# SABR
+
+
+def sabr_model_free(
+    r: float,
+    S: float,
+    T: float,
+    alpha: float,
+    beta: float,
+    rho: float,
+    nu: float,
+) -> float:
+    F = S * np.exp(r * T)
+    integrand_multiplier = 2 * np.exp(r * T)
+    put_integrand = quad(
+        lambda x: SABRPut(S, x, r, alpha, beta, rho, nu, T) / (np.power(x, 2)), 1e-6, F
+    )[0]
+    call_integrand = quad(
+        lambda x: SABRCall(S, x, r, alpha, beta, rho, nu, T) / (np.power(x, 2)),
+        F,
+        float("inf"),
+    )[0]
+    return integrand_multiplier * put_integrand + integrand_multiplier * call_integrand
+
+
+### SPX
+spx_results = {
+    "sigma SPX Black Scholes": sigma_spx_bs,
+    "BS price SPX": bs_model_free(S_spx, r, sigma_spx_bs, T),
+    "sigma SPX Bachelier": sigma_spx_bachelier,
+    "Bachelier price SPX": bachelier_model_free(S_spx, r, sigma_spx_bs, T),
+    "Static replication SABR SPX": sabr_model_free(
+        r,
+        S_spx,
+        T,
+        spx_sabr["alpha"],
+        spx_sabr["beta"],
+        spx_sabr["rho"],
+        spx_sabr["nu"],
+    ),
+}
+print("Price of SPX derivative contracts for model-free function: ")
+print(spx_results)
+
+### SPY
+spy_results = {
+    "sigma SPY Black Scholes": sigma_spy_bs,
+    "BS price SPY": bs_model_free(S_spy, r, sigma_spy_bs, T),
+    "sigma SPY Bachelier": sigma_spy_bachelier,
+    "Bachelier price SPY": bachelier_model_free(S_spy, r, sigma_spy_bachelier, T),
+    "Static replication SABR SPY": sabr_model_free(
+        r,
+        S_spy,
+        T,
+        spy_sabr["alpha"],
+        spy_sabr["beta"],
+        spy_sabr["rho"],
+        spy_sabr["nu"],
+    ),
+}
+print("Price of SPY derivative contracts for model-free function: ")
 print(spy_results)
