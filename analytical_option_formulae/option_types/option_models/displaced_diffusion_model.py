@@ -52,14 +52,11 @@ class AbstractDisplacedDiffusionModel(AbstractOptionModel):
     def _calculate_d1(self) -> float:
         return (
             np.log(self.adjusted_F / self.adjusted_K)
-            + (0.5 * self.adjusted_sigma**2) * self.T
+            + 0.5 * self.adjusted_sigma**2 * self.T
         ) / (self.adjusted_sigma * np.sqrt(self.T))
 
     def _calculate_d2(self) -> float:
-        return (
-            np.log(self.adjusted_F / self.adjusted_K)
-            - (0.5 * self.adjusted_sigma**2) * self.T
-        ) / (self.adjusted_sigma * np.sqrt(self.T))
+        return self.d1 - self.adjusted_sigma * np.sqrt(self.T)
 
 
 class VanillaDisplacedDiffusionModel(AbstractDisplacedDiffusionModel):

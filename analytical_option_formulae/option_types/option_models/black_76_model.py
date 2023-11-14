@@ -46,9 +46,7 @@ class AbstractBlack76Model(AbstractOptionModel):
         )
 
     def _calculate_d2(self) -> float:
-        return (np.log(self.F / self.K) - self.sigma**2 / 2 * self.T) / (
-            self.sigma * np.sqrt(self.T)
-        )
+        return self.d1 - self.sigma * np.sqrt(self.T)
 
 
 class VanillaBlack76Model(AbstractBlack76Model):
