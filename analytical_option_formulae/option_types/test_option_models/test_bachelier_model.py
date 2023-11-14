@@ -196,7 +196,7 @@ def test_digital_asset_or_nothing_call_price():
 
 
 def test_digital_asset_or_nothing_put_price():
-    EST_OPTION_VALUE = 60.73728
+    EST_OPTION_VALUE = 45.72767
     tolerance = 0.0001
     put_price = digitalAssetOrNothingBachelier.calculate_put_price()
     assert put_price > 0

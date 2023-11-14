@@ -46,14 +46,14 @@ class VanillaBachelierModel(AbstractBachelierModel):
     def calculate_call_price(self) -> float:
         call_price = self.discount_factor * (
             ((self.S - self.K) * norm.cdf(self.d1))
-            + self.sigma * self.S * (np.sqrt(self.T) * norm.pdf(self.d1))
+            + self.S * self.sigma * np.sqrt(self.T) * norm.pdf(self.d1)
         )
         return call_price
 
     def calculate_put_price(self) -> float:
         put_price = self.discount_factor * (
             ((self.K - self.S) * norm.cdf(-self.d1))
-            + self.sigma * self.S * (np.sqrt(self.T) * norm.pdf(-self.d1))
+            + self.S * self.sigma * np.sqrt(self.T) * norm.pdf(-self.d1)
         )
         return put_price
 
@@ -70,19 +70,17 @@ class DigitalCashOrNothingBachelierModel(AbstractBachelierModel):
 
 class DigitalAssetOrNothingBachelierModel(AbstractBachelierModel):
     def calculate_call_price(self) -> float:
-        call_price = self.discount_factor * (
-            (
-                (self.S) * norm.cdf(self.d1)
-                + self.sigma * self.S * np.sqrt(self.T) * norm.pdf(self.d1)
-            )
+        call_price = (
+            self.discount_factor
+            * self.S
+            * (norm.cdf(self.d1) + self.sigma * np.sqrt(self.T) * norm.pdf(self.d1))
         )
         return call_price
 
     def calculate_put_price(self) -> float:
-        put_price = self.discount_factor * (
-            (
-                (self.S) * norm.cdf(-self.d1)
-                + self.sigma * self.S * np.sqrt(self.T) * norm.pdf(-self.d1)
-            )
+        put_price = (
+            self.discount_factor
+            * self.S
+            * (norm.cdf(-self.d1) - self.sigma * np.sqrt(self.T) * norm.pdf(-self.d1))
         )
         return put_price
