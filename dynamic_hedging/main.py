@@ -82,6 +82,11 @@ for hedging_step in hedging_steps:
     simulation_results = compute_hedging_error(S_0, K, r, sigma, T, t, x)
     hedging_errors.append(simulation_results)
 
+print("Mean for N=21: {}".format(np.mean(hedging_errors[0])))
+print("Mean for N=84: {}".format(np.mean(hedging_errors[1])))
+print("Std for N=21: {}".format(np.std(hedging_errors[0])))
+print("Std for N=84: {}".format(np.std(hedging_errors[1])))
+
 plt.figure(figsize=(12, 6))
 
 plt.subplot(121)
