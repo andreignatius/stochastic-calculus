@@ -1,5 +1,13 @@
 # stochastic-calculus
 
+The following project for Stochastic modeling in finance (15 Nov 2023) was the result of the combined efforts of:
+Andre LIM, Dylan LOO, Eko WIDIANTO, Joseph T. ADHIKA, YIN Shanshan
+
+How to run Stochastic project:
+
+Pre-requisite:
+Run : `python -m pip install -r requirements.txt` to ensure that all relevant packages are installed prior to running script
+
 Part 1 : Analytical Option Formulae
 
 Consider the following European options:<br>
@@ -12,6 +20,20 @@ Derive and implement the following models to value these options in Python:<br>
 2 Bachelier model<br>
 3 Black76 model<br>
 4 Displaced-diffusion model<br>
+
+For simple sample usage, go to `analytical_option_formulae/` folder and run `python main.py`
+However, for more comprehensive tour of code functionalities, simply go to `analytical_option_formulae/` folder and run `python -m pytest` where it will run all test cases specified in folder `analytical_option_formulae/option_types/test_option_models/`<br>
+a. test_bachelier_model.py<br>
+b. test_black_76_model.py<br>
+c. test_black_scholes_model.py<br>
+d. test_displaced_diffusion_model.py<br>
+
+To review code implementation of each pricing model, kindly go to:
+`analytical_option_formulae/option_types/option_models/`<br>
+a. bachelier_model.py<br>
+b. black_76_model.py<br>
+c. black_scholes_model.py<br>
+d. displaced_diffusion_model.py<br>
 
 ***
 
@@ -36,6 +58,8 @@ Report the model parameters:<br>
 And discuss how does change β in the displaced-diffusion model and ρ, ν in the<br>
 SABR model affect the shape of the implied volatility smile.<br>
 
+Simply go to `model_calibration/` folder and run the Jupyter notebook `model_calibration.ipynb`
+
 ***
 
 Part 3 : Static Replication<br>
@@ -53,6 +77,8 @@ Determine the price of these 2 derivative contracts if we use:<br>
 2 Bachelier model (what σ should we use?)<br>
 3 Static-replication of European payoff (using the SABR model calibrated<br>
 in the previous question)<br>
+
+Simply go to `static_replication/` folder and run `python main.py`
 
 ***
 
@@ -76,3 +102,5 @@ Use 50,000 paths in your simulation, and plot the histogram of the hedging<br>
 error for N = 21 and N = 84.<br>
 
 Reference: http://pricing.free.fr/docs/when_you_cannot_hedge.pdf
+
+Simply go to `dynamic_hedging/` folder and run `python main.py`. Estimated time of completion is about <5 seconds!
