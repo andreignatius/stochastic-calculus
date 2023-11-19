@@ -1,6 +1,6 @@
 # stochastic-calculus
 
-The following project for Stochastic modeling in finance (15 Nov 2023) was the result of the combined efforts of:
+The following project for Stochastic modeling in finance (15 Nov 2023) was the result of the combined efforts of:<br>
 Andre LIM, Dylan LOO, Eko WIDIANTO, Joseph T. ADHIKA, YIN Shanshan
 
 How to run Stochastic project:
